@@ -41,6 +41,7 @@ async def get_coverage_areas(city_name: str, response: Response):
 async def get_prediction_price(
     city_name:str,habitaciones:int,areaConstruida:int, banos:int , areaPrivada:int , parqueaderos:int,
     estrato:int, precio_m2:int, response: Response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
     prediction = None
     #[habitaciones, areaConstruida ,banos,areaPrivada ,parqueaderos,estrato, precio_m2]    
     parameters_model = [habitaciones, areaConstruida ,banos,areaPrivada ,parqueaderos,estrato, precio_m2]
