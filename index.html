@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>APP Predictor precios de propiedades Cali</title>
+    <style>
+        /* Estilos generales */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        /* Estilos del formulario */
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .form-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-container label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .form-container input,
+        .form-container select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-container input[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Estilos del popup */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            display: none;
+            animation: popupAnimation 0.3s ease-in-out;
+        }
+
+        .popup-content {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #888;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .close-btn:hover {
+            color: #555;
+        }
+
+        /* Animación del popup */
+        @keyframes popupAnimation {
+            from {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>APP Predictor precios de propiedades Cali</h1>
+        <form id="predictionForm">
+            <label for="ciudad">City:</label>
+            <select name="ciudad" id="ciudad">
+                <option value="cali" selected>Cali</option>
+            </select>
+            <br>
+
+            <label for="habitaciones">Habitaciones:</label>
+            <input type="number" name="habitaciones" id="habitaciones" required>
+            <br>
+
+            <label for="areaConstruida">Área Construida:</label>
+            <input type="number" name="areaConstruida" id="areaConstruida" required>
+            <br>
+
+            <label for="banos">Baños:</label>
+            <input type="number" name="banos" id="banos" required>
+            <br>
+
+            <label for="areaPrivada">Área Privada:</label>
+            <input type="number" name="areaPrivada" id="areaPrivada" required>
+            <br>
+
+            <label for="parqueaderos">Parqueaderos:</label>
+            <input type="number" name="parqueaderos" id="parqueaderos" required>
+            <br>
+
+            <label for="estrato">Estrato:</label>
+            <input type="number" name="estrato" id="estrato" required>
+            <br>
+
+            <label for="precio_m2">Precio por m²:</label>
+            <input type="number" name="precio_m2" id="precio_m2" required>
+            <br>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+    <div id="popup" class="popup">
+        <span id="closeBtn" class="close-btn">&times;</span>
+        <div id="popupContent" class="popup-content"></div>
+    </div>
+
+    <script>
+        // Validación de campos y envío del formulario
+        var form = document.getElementById("predictionForm");
+        form.addEventListener("submit", function(event) {
+            event.preventDefault(); // Evitar envío del formulario
+
+            // Validar si hay espacios en los campos
+            var fields = ["habitaciones", "areaConstruida", "banos", "areaPrivada", "parqueaderos", "estrato", "precio_m2"];
+            for (var i = 0; i < fields.length; i++) {
+                var field = document.getElementById(fields[i]);
+                if (field.value.trim() === "") {
+                    alert("Por favor, ingrese un valor válido para " + field.name);
+                    return;
+                }
+            }
+
+            // Obtener los valores del formulario
+            var city_name = document.getElementById("ciudad").value;
+            var habitaciones = document.getElementById("habitaciones").value;
+            var areaConstruida = document.getElementById("areaConstruida").value;
+            var banos = document.getElementById("banos").value;
+            var areaPrivada = document.getElementById("areaPrivada").value;
+            var parqueaderos = document.getElementById("parqueaderos").value;
+            var estrato = document.getElementById("estrato").value;
+            var precio_m2 = document.getElementById("precio_m2").value;
+
+            // Construir la URL de la API con los valores del formulario
+            var apiUrl = "https://diplomado-api-fastapi.onrender.com/api/v1/prediction_price?city_name=" + encodeURIComponent(city_name) +
+                         "&habitaciones=" + encodeURIComponent(habitaciones) +
+                         "&areaConstruida=" + encodeURIComponent(areaConstruida) +
+                         "&banos=" + encodeURIComponent(banos) +
+                         "&areaPrivada=" + encodeURIComponent(areaPrivada) +
+                         "&parqueaderos=" + encodeURIComponent(parqueaderos) +
+                         "&estrato=" + encodeURIComponent(estrato) +
+                         "&precio_m2=" + encodeURIComponent(precio_m2);
+
+            // Realizar la solicitud GET a la API
+            fetch(apiUrl, { mode: 'cors' })
+                .then(function(response) {
+                    if (response.ok) {
+                        return response.text();
+                    } else {
+                        alert("ERROR");
+                        alert(response.text);
+                        throw new Error("Error en la solicitud a la API");
+                    }
+                })
+                .then(function(result) {
+                    showPopup(result); // Mostrar el resultado en el popup
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        });
+
+        // Mostrar el popup con el resultado
+        function showPopup(result) {
+            var popup = document.getElementById("popup");
+            var popupContent = document.getElementById("popupContent");
+            popupContent.textContent = result;
+            popup.style.display = "block";
+        }
+
+        // Cerrar el popup al hacer clic en la "X"
+        var closeBtn = document.getElementById("closeBtn");
+        closeBtn.addEventListener("click", function() {
+            var popup = document.getElementById("popup");
+            popup.style.display = "none";
+        });
+    </script>
+</body>
+</html>
